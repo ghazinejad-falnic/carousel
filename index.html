@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داغ‌ترین‌ها</title>
+    <!-- <link rel="stylesheet" href="./styles.css"> -->
+    <style>
+        @font-face {
+            font-family: dana;
+            src: url('./fonts/DanaVF.ttf');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: dana, sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .carousel-slider span {
+            display: block;
+            padding: 12px 10px 12px 10px;
+            margin: 0 0 0 10px;
+            border-radius: 3px;
+            color: #FF334B;
+            width: 110px;
+            font-weight: 500;
+        }
+
+        .carousel-container {
+            display: flex;
+            flex-flow: row;
+            max-width: 1330px;
+            margin: 10px auto;
+            align-items: center;
+        }
+
+        .carousel-container li {
+            text-align: center;
+            width: max-content;
+            white-space: nowrap;
+        }
+
+        .carousel-container li a {
+            font-family: dana, sans-serif;
+            font-weight: 400;
+            font-size: 14px;
+            color: #333;
+            padding: 9px 25px;
+            border-radius: 30px;
+            background-color: #F5F5F5;
+            text-align: center;
+            font-weight: 450;
+        }
+
+        .carousel-container .carousel-viewport {
+            overflow: hidden;
+            position: relative;
+            padding: 0 42px;
+        }
+
+        .carousel .button {
+            position: absolute;
+            background-color: #ffffff;
+            color: #212121;
+            width: 36px;
+            height: 36px;
+            box-shadow: 0px 0px 9px -3px rgb(0 0 0 / 22%);
+            border-radius: 50%;
+            border: none;
+            top: 0;
+        }
+
+        .carousel {
+            position: relative;
+            display: flex;
+            flex-flow: row nowrap;
+            height: 39px;
+            align-items: center;
+            max-width: 1150px;
+            touch-action: pan-y;
+            margin: 0 auto;
+        }
+
+        .carousel .button.previous {
+            left: -39px;
+        }
+
+        .carousel .button.next {
+            right: -42px;
+        }
+
+        .carousel .button svg {
+            position: absolute;
+            top: 20%;
+            width: 60%;
+            height: 60%;
+        }
+
+        .carousel .button.previous svg {
+            left: 34%;
+        }
+
+        .carousel .button.next svg {
+            left: 10%;
+        }
+
+        .carousel-list {
+            display: flex;
+            flex-flow: row nowrap;
+            list-style: none;
+            gap: 10px;
+            overflow: hidden;
+            width: max-content;
+            margin-right: -125px;
+            cursor: grab;
+            /* نشانگر ماوس در حالت عادی */
+            user-select: none;
+            /* جلوگیری از انتخاب متن */
+            -webkit-user-select: none;
+            /* برای سافاری */
+            -moz-user-select: none;
+            /* برای فایرفاکس */
+        }
+
+        .carousel-list li {
+            display: flex;
+        }
+
+        @media (max-width: 1024px) {
+            .carousel .button {
+                display: none;
+            }
+
+            .carousel-slider span {
+                width: 95px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="carousel-container">
+        <div class="carousel-slider">
+            <span>داغ‌ترین‌ها :</span>
+        </div>
+
+        <div class="carousel">
+            <div class="carousel-viewport">
+                <ul class="carousel-list">
+                    <li><a href="#">گوشی ارزان شیائومی</a></li>
+                    <li><a href="#">گوشی آیفون</a></li>
+                    <li><a href="#">آیفون 17</a></li>
+                    <li><a href="#">لپ تاپ گیمینگ</a></li>
+                    <li><a href="#">گوشی سامسونگ</a></li>
+                    <li><a href="#">لپ تاپ لمسی</a></li>
+                    <li><a href="#">لپ تاپ دانشجویی</a></li>
+                    <li><a href="#">اسپیکر</a></li>
+                    <li><a href="#">تلویزیون</a></li>
+                    <li><a href="#">هندزفری</a></li>
+                </ul>
+            </div>
+
+            <button class="button previous" aria-label="Previous">
+                <svg viewBox="0 0 100 100">
+                    <path d="M 10,50 L 35,80 L 45,75 L 25,50  L 45,25 L 35,20 Z" />
+                </svg>
+            </button>
+
+            <button class="button next" aria-label="Next">
+                <svg viewBox="0 0 100 100">
+                    <path d="M 10,50 L 35,80 L 45,75 L 25,50  L 45,25 L 35,20 Z"
+                        transform="translate(100, 100) rotate(180)" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const list = document.querySelector('.carousel-list');
+        const prevBtn = document.querySelector('.previous');
+        const nextBtn = document.querySelector('.next');
+
+        let isAnimating = false;
+        const animationDuration = 500;
+        const autoSlideInterval = 3000;
+        const FREE_SCROLL_THRESHOLD = 400; // آستانه (پیکسل) برای جابجایی آیتم در FreeScroll
+
+        // --- منطق دکمه‌ها و اتوپلی (حفظ می‌شود) ---
+        function nextSlide() {
+            if (isAnimating) return;
+            isAnimating = true;
+            const itemWidth = list.firstElementChild.offsetWidth;
+            list.style.transition = `transform ${animationDuration / 1000}s ease`;
+            list.style.transform = `translateX(${itemWidth + 0}px)`;
+
+            setTimeout(() => {
+                list.appendChild(list.firstElementChild);
+                list.style.transition = 'none';
+                list.style.transform = 'translateX(0)';
+                isAnimating = false;
+            }, animationDuration);
+
+            resetAutoSlide();
+        }
+
+        function prevSlide() {
+            if (isAnimating) return;
+            isAnimating = true;
+            const lastItem = list.lastElementChild;
+            const itemWidth = lastItem.offsetWidth;
+
+            list.style.transition = 'none';
+            list.prepend(lastItem);
+            list.style.transform = `translateX(${itemWidth}px)`;
+
+            setTimeout(() => {
+                list.style.transition = `transform ${animationDuration / 1000}s ease`;
+                list.style.transform = 'translateX(0)';
+            }, 10);
+
+            setTimeout(() => {
+                isAnimating = false;
+            }, animationDuration + 10);
+
+            resetAutoSlide();
+        }
+
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        let autoSlide = setInterval(nextSlide, autoSlideInterval);
+        function resetAutoSlide() {
+            clearInterval(autoSlide);
+            autoSlide = setInterval(nextSlide, autoSlideInterval);
+        }
+
+        // --- منطق Drag (اصلاح شده برای FreeScroll) ---
+
+        let isDragging = false;
+        let startX = 0;
+        let startTranslate = 0;
+        let currentTranslate = 0;
+
+        function getPositionX(e) {
+            return e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+        }
+
+        function getComputedTranslateX() {
+            if (!window.getComputedStyle) return 0;
+            const style = window.getComputedStyle(list);
+            const transform = style.transform || style.webkitTransform;
+            if (transform === 'none') return 0;
+            const matrix = new DOMMatrixReadOnly(transform);
+            return matrix.m41;
+        }
+
+        function dragStart(e) {
+            if (isAnimating) return;
+            isDragging = true;
+            startX = getPositionX(e);
+            startTranslate = getComputedTranslateX();
+
+            list.style.transition = 'none';
+            list.style.cursor = 'grabbing';
+            clearInterval(autoSlide);
+        }
+
+        function dragging(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const currentX = getPositionX(e);
+            const deltaX = currentX - startX;
+
+            currentTranslate = startTranslate + deltaX;
+            list.style.transform = `translateX(${currentTranslate}px)`;
+
+            // --- ✨ منطق کلیدی FreeScroll/Infinite در حین Drag ---
+
+            const itemWidth = list.firstElementChild.offsetWidth;
+
+            // 1. چک کردن برای جابجایی آیتم به جلو (کشیدن به سمت چپ)
+            // اگر اسکرول از یک آستانه مشخص (مثلا عرض آیتم) فراتر رفت
+            // از آنجایی که در RTL،translateX مثبت یعنی حرکت به چپ، ما این را چک می‌کنیم:
+            if (currentTranslate > itemWidth) {
+                // اگر بیشتر از یک آیتم کامل به چپ کشیده شده است، آیتم را جابجا کن
+                list.appendChild(list.firstElementChild);
+
+                // موقعیت translateX را به اندازه عرض آیتم کم کن تا پرش رخ ندهد
+                startTranslate -= itemWidth;
+                currentTranslate -= itemWidth;
+                list.style.transform = `translateX(${currentTranslate}px)`;
+
+                // لیست DOM و موقعیت اسکرول به صورت نامحسوس تغییر کرد
+            }
+
+            // 2. چک کردن برای جابجایی آیتم به عقب (کشیدن به سمت راست)
+            // اگر اسکرول از آستانه 0 به شدت به سمت راست رفت (معکوس شدن جهت)
+            if (currentTranslate < -itemWidth) {
+                // اگر بیشتر از یک آیتم کامل به راست کشیده شده است، آیتم را جابجا کن
+                list.prepend(list.lastElementChild);
+
+
+                // موقعیت translateX را به اندازه عرض آیتم اضافه کن تا پرش رخ ندهد
+                startTranslate += itemWidth;
+                currentTranslate += itemWidth;
+                list.style.transform = `translateX(${currentTranslate}px)`;
+
+                // لیست DOM و موقعیت اسکرول به صورت نامحسوس تغییر کرد
+            }
+        }
+
+        function dragEnd(e) {
+            if (!isDragging) return;
+
+            isDragging = false;
+            list.style.cursor = 'grab';
+            resetAutoSlide();
+
+            if (isAnimating) return;
+
+            // --- ✨ منطق FreeScroll در پایان Drag (بدون Snap) ---
+
+            const velocity = e.nativeEvent ? e.nativeEvent.velocity : 0; // برای محاسبه سرعت نهایی (پیشرفته)
+
+            // در FreeScroll، ما فقط حرکت نهایی را متوقف و نرم می‌کنیم (De-acceleration)
+            // هیچ پرش یا جابجایی آیتم دیگری در اینجا لازم نیست.
+
+            // Flickity از یک تابع خاص برای نرم کردن حرکت نهایی (deceleration) استفاده می‌کند
+            // ما اینجا فقط انیمیشن را متوقف می‌کنیم.
+
+            // اگر می‌خواهید حالت FreeScroll کاملاً آزاد باشد و فقط در نقطه‌ای که کاربر رها کرده بایستد:
+
+            // 1. اطمینان از حذف transition قبلی (که در dragging حذف شد)
+            list.style.transition = 'none';
+
+            // 2. پایان انیمیشن و آزادسازی قفل
+            isAnimating = false; // نیازی به isAnimating برای توقف نیست، زیرا snap رخ نمی‌دهد.
+
+            // اگر بخواهید حرکت نهایی (Momentum) را شبیه‌سازی کنید: (اختیاری و پیچیده)
+            /*
+            if (Math.abs(velocity) > 0.1) {
+                const finalPosition = currentTranslate + velocity * 100; // مثال: محاسبه موقعیت نهایی بر اساس سرعت
+                
+                list.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+                list.style.transform = `translateX(${finalPosition}px)`;
+                // در اینجا باید دوباره چک کنید که آیا آیتم دیگری باید جابجا شود یا نه،
+                // که این FreeScroll را بسیار پیچیده می‌کند.
+                
+                // برای سادگی، فعلاً FreeScroll را به "توقف فوری" محدود می‌کنیم.
+            }
+            */
+
+            // متغیرها را ریست می‌کنیم
+            startTranslate = 0;
+            currentTranslate = 0;
+        }
+
+        // فعال کردن رویدادها
+        list.addEventListener('mousedown', dragStart);
+        list.addEventListener('touchstart', dragStart, { passive: true });
+        list.addEventListener('mousemove', dragging);
+        list.addEventListener('touchmove', dragging, { passive: false });
+        list.addEventListener('mouseup', dragEnd);
+        list.addEventListener('mouseleave', dragEnd);
+        list.addEventListener('touchend', dragEnd);
+        list.ondragstart = () => false;
+
+    </script>
+</body>
+
+</html>
