@@ -35,6 +35,7 @@ a {
     max-width: 1330px;
     margin: 10px auto;
     align-items: center;
+    overflow: hidden;
 }
 
 .carousel-container li {
